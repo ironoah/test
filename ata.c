@@ -24,8 +24,8 @@
 
 
 enum{
-	TIME_OUT=2000,				/* Time out ms */
-	IDENTIFY_SIZE=512,			/* ATA ATAPI identify buffer size */
+	TIME_OUT=2000,			/* Time out ms */
+	IDENTIFY_SIZE=512,		/* ATA ATAPI identify buffer size */
 	ATA_SECTOR_SIZE=512,		/* ATA disk sector size */
 
 	/* IO register */
@@ -103,7 +103,7 @@ enum{
 	IDE_BMIC=0x0,			/* Bus Master IDE Command register */
 	IDE_BMIS=0x2,			/* Bus Master IDE Status register */
 	IDE_BMIDTP=0x4,			/* Bus Master IDE Descriptor Table Pointer register(4byte) */
-	IDE_BMIO_SECOND=0x8,	/* ¥»¥«¥ó¥À¥ê¡¼¥Û¥¹¥È¤Î¾ì¹ç¤Ë¥ì¥¸¥¹¥¿¡¼ÃÍ¤Ë¥×¥é¥¹¤¹¤ëÃÍ */
+	IDE_BMIO_SECOND=0x8,	/* ã‚»ã‚«ãƒ³ãƒ€ãƒªãƒ¼ãƒ›ã‚¹ãƒˆã®å ´åˆã«ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ¼å€¤ã«ãƒ—ãƒ©ã‚¹ã™ã‚‹å€¤ */
 	PRD_EOT=0x1<<31,		/* PRD EOT bit */
 
 	/* ATAPI function flag */
@@ -138,9 +138,9 @@ typedef struct{
     int astr;	/* ATA_ASTR=0x206 */
 }ATA_REG;
 
-/* ATA ATAPI identify infomation(ATA-5»ÅÍÍ) */
+/* ATA ATAPI identify infomation(ATA-5ä»•æ§˜) */
 typedef struct{
-	ushort	config;				/* 0 ÄêµÁ°ã¤¤¤¢¤ê */
+	ushort	config;				/* 0 å®šç¾©é•ã„ã‚ã‚Š */
 	ushort	n_cyl;				/* 1 ATA only */
 	ushort	sub_command;		/* 2 */
 	ushort	n_head;				/* 3 ATA only */
@@ -153,7 +153,7 @@ typedef struct{
 	uchar	model[40];			/* 27 */
 	ushort	multi_intr;			/* 47 ATA only */
 	ushort	reserv2;			/* 48 */
-	ushort	iordy;				/* 49 ÄêµÁ°ã¤¤¤¢¤ê */
+	ushort	iordy;				/* 49 å®šç¾©é•ã„ã‚ã‚Š */
 	ushort	stby_timer;			/* 50 ATA only */
 	ushort	nodef2[2];			/* 51 */
 	ushort	word_enable;		/* 53 */
@@ -249,10 +249,10 @@ static CONECT_DEV conect_dev[2][2]={			/* Conect device infomation */
 };
 static int current_intr[2];						/* Current host interrupt mode,enable=1 or diable=0 */
 static uint64 time_out;							/* Time out counts */
-static WAIT_INTR wait_intr_queue[2]={			/* ³ä¤ê¹ş¤ßÂÔ¤ÁÍÑ */
+static WAIT_INTR wait_intr_queue[2]={			/* å‰²ã‚Šè¾¼ã¿å¾…ã¡ç”¨ */
 	{NULL,0},{NULL,0}
 };
-static WAIT_QUEUE wait_queue[2]={				/* ½èÍıÂÔ¤ÁÍÑWait queue */
+static WAIT_QUEUE wait_queue[2]={				/* å‡¦ç†å¾…ã¡ç”¨Wait queue */
 	{NULL,(PROC*)&wait_queue[0],0,0},
 	{NULL,(PROC*)&wait_queue[1],0,0}
 };
@@ -329,10 +329,10 @@ extern inline int transfer(int host,int dev,int mode,void *buf,size_t blocks,siz
 
 	wait_proc(&wait_queue[host]);
 	{
-		/* SMP¤Ê¤é³ä¤ê¹ş¤ß¤¬Æ±¤¸cpu¤ËÈ¯À¸¤¹¤ë¤è¤¦¤Ë¤¹¤ë */
+		/* SMPãªã‚‰å‰²ã‚Šè¾¼ã¿ãŒåŒã˜cpuã«ç™ºç”Ÿã™ã‚‹ã‚ˆã†ã«ã™ã‚‹ */
 		if(MFPS_addres)set_intr_cpu(irq_num[host],get_current_cpu());
 
-		/* Å¾Á÷³«»Ï */
+		/* è»¢é€é–‹å§‹ */
 		if((error=conect_dev[host][dev].transfer(host,dev,mode,buf,blocks,begin))!=0)rest=error;
 		else rest=blocks;
 	}
@@ -452,8 +452,8 @@ int change_mode(int host,int dev,int mode)
 		else return PRINT_ERR(ENOSYS,"change_mode");
 
 		/*
-		 * ULTRA DMAÂĞ±ş¤Î¥É¥é¥¤¥Ö¤Ë¤Ä¤¤¤Æ¤Ï¡¢BIOS¤ÇIDE¤¬ULTRA DMA¤Ë
-		 * ÀßÄê¤µ¤ì¤Æ¤¤¤ë¤Î¤Ç¡¢¤½¤ÎÀßÄê¤ò¼è¤ê¾Ã¤¹É¬Í×¤¬¤¢¤ë
+		 * ULTRA DMAå¯¾å¿œã®ãƒ‰ãƒ©ã‚¤ãƒ–ã«ã¤ã„ã¦ã¯ã€BIOSã§IDEãŒULTRA DMAã«
+		 * è¨­å®šã•ã‚Œã¦ã„ã‚‹ã®ã§ã€ãã®è¨­å®šã‚’å–ã‚Šæ¶ˆã™å¿…è¦ãŒã‚ã‚‹
 		 */
 		if((error=init_ide_busmaster(host,&ide))!=0)return error;
 
@@ -515,8 +515,8 @@ int change_mode(int host,int dev,int mode)
 			return PRINT_ERR(ENOSYS,"change_mode");
 
 		/*
-		 * ULTRA DMAÂĞ±ş¤Î¥É¥é¥¤¥Ö¤Ë¤Ä¤¤¤Æ¤Ï¡¢BIOS¤ÇIDE¤¬ULTRA DMA¤Ë
-		 * ÀßÄê¤µ¤ì¤Æ¤¤¤ë¤â¤Î¤È¤ß¤Ê¤¹
+		 * ULTRA DMAå¯¾å¿œã®ãƒ‰ãƒ©ã‚¤ãƒ–ã«ã¤ã„ã¦ã¯ã€BIOSã§IDEãŒULTRA DMAã«
+		 * è¨­å®šã•ã‚Œã¦ã„ã‚‹ã‚‚ã®ã¨ã¿ãªã™
 		 */
 		if((error=init_ide_busmaster(host,&ide))!=0)return error;
 
@@ -797,8 +797,8 @@ int read_dma(int host,int dev,void *buf,int block,int count)
 	prd[host].count=block*count|PRD_EOT;
 	outdw(ide_base[host]+IDE_BMIDTP,(uint)&prd[host]);
 	/*
-	 * ¥Ğ¥¹¥Ş¥¹¥¿¡¼¥¹¥Æ¡¼¥¿¥¹¥ì¥¸¥¹¥¿¤Î³ä¤ê¹ş¤ß¥Õ¥é¥°¤ò¥¯¥ê¥¢¡¼¤·¤Ê¤¤¤È
-	 * ³ä¤ê¹ş¤ß¤¬È¯À¸¤·¤Ê¤¤¤è¤¦¤À
+	 * ãƒã‚¹ãƒã‚¹ã‚¿ãƒ¼ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ¬ã‚¸ã‚¹ã‚¿ã®å‰²ã‚Šè¾¼ã¿ãƒ•ãƒ©ã‚°ã‚’ã‚¯ãƒªã‚¢ãƒ¼ã—ãªã„ã¨
+	 * å‰²ã‚Šè¾¼ã¿ãŒç™ºç”Ÿã—ãªã„ã‚ˆã†ã 
 	 */
 	outb(ide_base[host]+IDE_BMIS,0x6);			/* Clear interrupt bit and error bit */
 	outb(ide_base[host]+IDE_BMIC,0x9);			/* Start read Bus Master */
@@ -822,8 +822,8 @@ int write_dma(int host,int dev,void *buf,int block,int count)
 	prd[host].count=block*count|PRD_EOT;
 	outdw(ide_base[host]+IDE_BMIDTP,(uint)&prd[host]);
 	/*
-	 * ¥Ğ¥¹¥Ş¥¹¥¿¡¼¥¹¥Æ¡¼¥¿¥¹¥ì¥¸¥¹¥¿¤Î³ä¤ê¹ş¤ß¥Õ¥é¥°¤ò¥¯¥ê¥¢¡¼¤·¤Ê¤¤¤È
-	 * ³ä¤ê¹ş¤ß¤¬È¯À¸¤·¤Ê¤¤¤è¤¦¤À
+	 * ãƒã‚¹ãƒã‚¹ã‚¿ãƒ¼ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ¬ã‚¸ã‚¹ã‚¿ã®å‰²ã‚Šè¾¼ã¿ãƒ•ãƒ©ã‚°ã‚’ã‚¯ãƒªã‚¢ãƒ¼ã—ãªã„ã¨
+	 * å‰²ã‚Šè¾¼ã¿ãŒç™ºç”Ÿã—ãªã„ã‚ˆã†ã 
 	 */
 	outb(ide_base[host]+IDE_BMIS,0x6);		/* Clear interrupt bit and error bit */
 	outb(ide_base[host]+IDE_BMIC,0x1);		/* Start write Bus Master */
@@ -864,7 +864,7 @@ int reset_host(int host)
 
 
 /*
- * ATA¤Î½é´ü²½
+ * ATAã®åˆæœŸåŒ–
  * return : 0 or Error number
  */
 int init_ata()
@@ -875,23 +875,23 @@ int init_ata()
 	int i,j;
 
 
-	/* ¥¿¥¤¥à¥¢¥¦¥ÈÃÍ¤ÎÂåÆş */
+	/* ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆå€¤ã®ä»£å…¥ */
 	time_out=clock_1m*TIME_OUT;
 
 	if((id_info=(ID_INFO*)kmalloc(IDENTIFY_SIZE))==NULL)return PRINT_ERR(ENOMEM,"init_ata");
 
-	/* ÀÜÂ³¥Ç¥Ğ¥¤¥¹¤òÈ½Äê¤¹¤ë */
+	/* æ¥ç¶šãƒ‡ãƒã‚¤ã‚¹ã‚’åˆ¤å®šã™ã‚‹ */
 	for(i=0;i<2;++i)
 	{
-		/* ¥½¥Õ¥È¥ê¥»¥Ã¥È */
+		/* ã‚½ãƒ•ãƒˆãƒªã‚»ãƒƒãƒˆ */
 		if(soft_reset(i)!=0)continue;
 		current_intr[i]=0;
 
 		for(j=0;j<2;++j)
 		{
 			/*
-			 * ¥½¥Õ¥È¥ê¥»¥Ã¥È¸åATA¤Ê¤éATA_CLR=0 ATA_CHR=0¡¢ATAPI¤Ê¤éATA_CLR=0x14 ATA_CHR=0xeb
-			 * ¤Ë¤Ê¤ë
+			 * ã‚½ãƒ•ãƒˆãƒªã‚»ãƒƒãƒˆå¾ŒATAãªã‚‰ATA_CLR=0 ATA_CHR=0ã€ATAPIãªã‚‰ATA_CLR=0x14 ATA_CHR=0xeb
+			 * ã«ãªã‚‹
 			 */
 			outb(reg[i].dhr,j<<4);
 			mili_timer(5);
@@ -903,7 +903,7 @@ int init_ata()
 			{
 				id_info->model[0]=0xff;
 				if(identify_device(i,j,ATA,id_info)!=0)continue;	/* Read identify infomation */
-				if(id_info->model[0]==0xff)continue;				/* ÆÉ¤ß½Ğ¤·¤Æ¤¤¤ë¤«¤ò¥Á¥§¥Ã¥¯ */
+				if(id_info->model[0]==0xff)continue;				/* èª­ã¿å‡ºã—ã¦ã„ã‚‹ã‹ã‚’ãƒã‚§ãƒƒã‚¯ */
 
 				/* Print device infomation */
 				cnv_idinfo_str(id_info->model,40);
@@ -968,9 +968,9 @@ int init_ata()
 	kfree(id_info);
 
 	/*
-	 * ¤â¤¦°ìÅÙ³ÎÇ§
-	 * ¥Ç¥Ğ¥¤¥¹¤Ë¤è¤Ã¤Æ¤Ï¡¢Æ±°ì¥Û¥¹¥È¤¬Â¸ºß¤·¤Ê¤¤¾ì¹ç³ÎÇ§½èÍı¤Ë¤è¤Ã¤Æ
-	 * ¥Ó¥¸¡¼¾õÂÖ¤Î¤Ş¤Ş¤Ë¤Ê¤Ã¤Æ¤·¤Ş¤¦¡£
+	 * ã‚‚ã†ä¸€åº¦ç¢ºèª
+	 * ãƒ‡ãƒã‚¤ã‚¹ã«ã‚ˆã£ã¦ã¯ã€åŒä¸€ãƒ›ã‚¹ãƒˆãŒå­˜åœ¨ã—ãªã„å ´åˆç¢ºèªå‡¦ç†ã«ã‚ˆã£ã¦
+	 * ãƒ“ã‚¸ãƒ¼çŠ¶æ…‹ã®ã¾ã¾ã«ãªã£ã¦ã—ã¾ã†ã€‚
 	 */
 	for(i=0;i<2;++i)
 		for(j=0;j<2;++j)
@@ -981,9 +981,9 @@ int init_ata()
 		}
 
 	/*
-	 * ³ä¤ê¹ş¤ß¤ÎÀßÄê
-	 * 8259PIC¤Î¾ì¹ç¥Ş¥¹¥¯¤·¤Æ¤â³ä¤ê¹ş¤ß¤ÏÊİ»ı¤µ¤ì¤Æ¤¤¤ë¤Î¤Ç¡¢¥Ş¥¹¥¯²ò½ü¤Î¸å
-	 * ¥¿¥¤¥Ş¡¼¤òÆş¤ì¤Æ¡¢¥Ï¥ó¥É¥éÀßÄêÁ°¤Ë³ä¤ê¹ş¤ß¤òÈ¯À¸¤µ¤»¤ë¡£
+	 * å‰²ã‚Šè¾¼ã¿ã®è¨­å®š
+	 * 8259PICã®å ´åˆãƒã‚¹ã‚¯ã—ã¦ã‚‚å‰²ã‚Šè¾¼ã¿ã¯ä¿æŒã•ã‚Œã¦ã„ã‚‹ã®ã§ã€ãƒã‚¹ã‚¯è§£é™¤ã®å¾Œ
+	 * ã‚¿ã‚¤ãƒãƒ¼ã‚’å…¥ã‚Œã¦ã€ãƒãƒ³ãƒ‰ãƒ©è¨­å®šå‰ã«å‰²ã‚Šè¾¼ã¿ã‚’ç™ºç”Ÿã•ã›ã‚‹ã€‚
 	 */
 	release_irq_mask(PRIM_IRQ);
 	release_irq_mask(SECOND_IRQ);
@@ -996,7 +996,7 @@ int init_ata()
 
 
 /*
- * ¥ï¡¼¥É¤Î¥Ó¥Ã¥°¥¨¥ó¥Ç¥£¥¢¥ó¤ò¥ê¥È¥ë¥¨¥ó¥Ç¥£¥¢¥ó¤ËÊÑ¤¨¤ë
+ * ãƒ¯ãƒ¼ãƒ‰ã®ãƒ“ãƒƒã‚°ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‚’ãƒªãƒˆãƒ«ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã«å¤‰ãˆã‚‹
  * parameters : string address,string length
  * return : string address
  */
@@ -1008,7 +1008,7 @@ char *cnv_idinfo_str(char *str,int len)
 
 
 	/*
-	 * ' '¤¬£²¤Ä¤Ä¤Å¤¤¤¿¤é'\0'¤òÆş¤ì¤ë
+	 * ' 'ãŒï¼’ã¤ã¤ã¥ã„ãŸã‚‰'\0'ã‚’å…¥ã‚Œã‚‹
 	 */
 	count=0;
 	for(i=0;i<len;++i)
@@ -1031,15 +1031,15 @@ char *cnv_idinfo_str(char *str,int len)
 
 
 /*
- * ¥½¥Õ¥È¥¦¥§¥¢¥ê¥»¥Ã¥È
- * parameters : ¥³¥ó¥È¥í¡¼¥ë¥ì¥¸¥¹¥¿
+ * ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ãƒªã‚»ãƒƒãƒˆ
+ * parameters : ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ãƒ¬ã‚¸ã‚¹ã‚¿
  * return : 0 or Error number
  */
 int soft_reset(int host)
 {
-	outb(reg[host].ctr,0x4);	/* ¥½¥Õ¥È¥ê¥»¥Ã¥È */
+	outb(reg[host].ctr,0x4);	/* ã‚½ãƒ•ãƒˆãƒªã‚»ãƒƒãƒˆ */
 	mili_timer(5);				/* 5ms wait */
-	outb(reg[host].ctr,0x2);	/* ¥ê¥»¥Ã¥È²ò½ü|³ä¤ê¹ş¤ß¶Ø»ß */
+	outb(reg[host].ctr,0x2);	/* ãƒªã‚»ãƒƒãƒˆè§£é™¤|å‰²ã‚Šè¾¼ã¿ç¦æ­¢ */
 	mili_timer(20);				/* 20ms wait */
 	if((check_busy(reg[host].astr)&BSY_BIT)!=0)return PRINT_ERR(EDBUSY,"soft_reset");
 
@@ -1055,7 +1055,7 @@ int soft_reset(int host)
 
 
 /*
- * ¥Ç¥Ğ¥¤¥¹¥»¥ì¥¯¥·¥ç¥ó
+ * ãƒ‡ãƒã‚¤ã‚¹ã‚»ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³
  * parameters : Device number,Host number
  * return : 0 or Error number
  */
@@ -1258,7 +1258,7 @@ int init_device_param(int host,int dev,uchar head,uchar sectors)
 
 
 /*
- * ¥Ç¥Ğ¥¤¥¹¤ÎÆ°ºîÀßÄê
+ * ãƒ‡ãƒã‚¤ã‚¹ã®å‹•ä½œè¨­å®š
  * parameters : Host number,Device number,Subcommand,Transfer mode or 0
  * return : 0 or Error number
  */
@@ -1306,7 +1306,7 @@ int issue_packet_command(int host,int dev,PACKET_PARAM *param)
 
 	dtr=reg[host].dtr;
 
-	/* ¥Ç¥Ğ¥¤¥¹¥»¥ì¥¯¥·¥ç¥ó */
+	/* ãƒ‡ãƒã‚¤ã‚¹ã‚»ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ */
 	if((error=device_select(host,dev<<4))!=0)return error;
 
 	/* Issue packet command  */
@@ -1496,8 +1496,8 @@ int read_capacity(int host,int dev)
 	}
 
 	/*
-	 * 512byteÃ±°Ì¤ÇÀÚ¼Î¤Æ
-	 * ¥É¥é¥¤¥Ö¤Ë¤è¤Ã¤Æ¤ÏÊªÍı¥»¥¯¥¿¡¼¥µ¥¤¥º¤Î¾ì¹ç¤¬¤¢¤ë
+	 * 512byteå˜ä½ã§åˆ‡æ¨ã¦
+	 * ãƒ‰ãƒ©ã‚¤ãƒ–ã«ã‚ˆã£ã¦ã¯ç‰©ç†ã‚»ã‚¯ã‚¿ãƒ¼ã‚µã‚¤ã‚ºã®å ´åˆãŒã‚ã‚‹
 	 */
 	conect_dev[host][dev].sector_size=ROUNDDOWN(conect_dev[host][dev].sector_size,512);
 
