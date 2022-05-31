@@ -1,4 +1,3 @@
 #!/usr/bin/env python
 # -*- coding: shift_jis -*-
-print u"‚±‚ñ‚É‚¿‚ÍC¢ŠE"
-
+print u"Hello, World."
